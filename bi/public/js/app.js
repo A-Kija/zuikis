@@ -1847,21 +1847,124 @@ module.exports = {
  */
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
-if (document.querySelector('.book-delete')) {
-  document.querySelectorAll('.book-delete').forEach(function (form) {
-    form.addEventListener('submit', function (e) {
-      var answer = confirm('Are jū šūre?'); // document.querySelector('#mod').style.display = 'block';
-      // document.querySelector('#mod').innerHTML = "Are ju šure to delete book " + form.dataset.bookId;
-      // const answer = false;
+var deleteConfirm = function deleteConfirm() {
+  if (document.querySelector('.book-delete')) {
+    document.querySelectorAll('.book-delete').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        var answer = confirm('Are jū šūre?'); // document.querySelector('#mod').style.display = 'block';
+        // document.querySelector('#mod').innerHTML = "Are ju šure to delete book " + form.dataset.bookId;
+        // const answer = false;
 
-      if (answer) {
-        return true;
-      }
+        if (answer) {
+          return true;
+        }
 
-      e.preventDefault();
+        e.preventDefault();
+      });
     });
-  });
-}
+  } // publishers confirm dialog
+  // if (document.querySelector('.pub-delete')) {
+  //     document.querySelectorAll('.pub-delete').forEach(form => {
+  //         form.addEventListener('submit', e => {
+  //             const answer = confirm('Are you sure?')
+  //             if (answer) {
+  //                 return true;
+  //             }
+  //             e.preventDefault();
+  //         });
+  //     })
+  // }
+
+};
+
+var displayMsg = function displayMsg() {
+  var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+  var msg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+  var info = document.querySelector('#info-msg');
+  var success = document.querySelector('#success-msg');
+
+  if (type === 'success') {
+    info.style.display = 'none';
+    success.style.display = 'block';
+    success.innerHTML = msg;
+  } else if (type === 'info') {
+    success.style.display = 'none';
+    info.style.display = 'block';
+    info.innerHTML = msg;
+  } else {
+    success.style.display = 'none';
+    info.style.display = 'none';
+  }
+};
+
+var doBlockLoad = function doBlockLoad() {
+  /// LOADS
+  if (document.querySelector('[data-block-load]')) {
+    var container = document.querySelector('[data-block-load]');
+    var url = container.dataset.url;
+    axios.get(url).then(function (response) {
+      container.innerHTML = response.data.html; // deleteConfirm();
+
+      doDelete();
+      console.log(response);
+    })["catch"](function (error) {
+      console.log(error);
+    });
+  }
+};
+
+var doDelete = function doDelete() {
+  /// Deletes
+  console.log("HELLO");
+
+  if (document.querySelector('[data-delete]')) {
+    document.querySelectorAll('[data-delete]').forEach(function (form) {
+      // const form = document.querySelector('[data-delete]');
+      var url = form.dataset.url;
+      var data = {};
+      form.addEventListener('submit', function (e) {
+        var answer = confirm('Are jū šūre?');
+        e.preventDefault();
+
+        if (!answer) {
+          return false;
+        }
+
+        axios.post(url, data).then(function (response) {
+          displayMsg(response.data.msgType, response.data.message);
+          doBlockLoad();
+          console.log(response);
+        })["catch"](function (error) {
+          console.log(error);
+        });
+      });
+    });
+  }
+};
+
+window.addEventListener('DOMContentLoaded', function () {
+  doBlockLoad(); /// SUBMITS
+
+  if (document.querySelector('[data-submit]')) {
+    var form = document.querySelector('[data-submit]');
+    var url = form.dataset.url;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var data = {};
+      form.querySelectorAll('[id]').forEach(function (el) {
+        data[el.id] = el.value;
+      });
+      axios.post(url, data).then(function (response) {
+        form.reset();
+        displayMsg(response.data.msgType, response.data.message);
+        doBlockLoad();
+        console.log(response);
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    });
+  }
+});
 
 /***/ }),
 

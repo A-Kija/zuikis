@@ -56,6 +56,10 @@ Route::group(['prefix' => 'authors'], function(){
     Route::post('update/{publisher}', [PublisherController::class, 'update'])->name('publisher.update');
     Route::post('delete/{publisher}', [PublisherController::class, 'destroy'])->name('publisher.destroy');
     Route::get('show/{publisher}', [PublisherController::class, 'show'])->name('publisher.show');
+   // JS API
+    Route::get('list', [PublisherController::class, 'getList'])->name('publisher.list');
+    Route::post('jsstore', [PublisherController::class, 'jsStore'])->name('publisher.js.store');
+    Route::post('jsdelete/{publisher}', [PublisherController::class, 'jsDestroy'])->name('publisher.js.destroy');
  });
  
  

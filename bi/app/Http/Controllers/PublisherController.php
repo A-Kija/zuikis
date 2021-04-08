@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Publisher;
 use Illuminate\Http\Request;
 use Validator;
+use View;
+use Response;
 
 class PublisherController extends Controller
 {
@@ -148,4 +150,63 @@ class PublisherController extends Controller
         $publisher->delete();
         return redirect()->route('publisher.index')->with('info_message', 'The Publisher was killed. Nice job!');
     }
+
+
+    public function getList(Request $request)
+    {
+        // sleep(2);
+        $publishers = Publisher::all();
+
+        $list = View::make('publisher.list')
+        ->with(['publishers' => $publishers])
+        ->render(); // <------- blade LIST surenderintas ir paverstas html stringu
+
+
+        return Response::json(
+            [
+                'html' => $list,
+                // 'message' => 'OK'   //<----- tiesiog siaip galima prideti kintamuju
+            ]
+        );
+
+    }
+
+    public function jsStore(Request $request)
+    {
+        Publisher::new()->refreshAndSave($request);
+        return Response::json(
+            [
+                'message' => 'The Publisher was created. Nice job!',   //<----- tiesiog siaip galima prideti kintamuju
+                'msgType' => 'success'
+            ]
+        );
+    }
+
+
+    public function jsDestroy(Publisher $publisher)
+    {
+        
+        
+        
+        if ($publisher->publisherBooksList->count() !== 0) {
+            return Response::json(
+                [
+                    'message' => 'The Publisher is immortal. You cant kill him. Nice try!',   //<----- tiesiog siaip galima prideti kintamuju
+                    'msgType' => 'info'
+                ]
+            );
+        }
+        
+        $publisher->delete();
+        return Response::json(
+            [
+                'message' => 'The Publisher was killed. Nice job!',   //<----- tiesiog siaip galima prideti kintamuju
+                'msgType' => 'success'
+            ]
+        );
+    }
+
+
+
+
 }

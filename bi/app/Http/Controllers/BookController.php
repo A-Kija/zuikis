@@ -7,6 +7,7 @@ use App\Models\Author;
 use App\Models\Publisher;
 use Illuminate\Http\Request;
 use PDF;
+use Auth;
 
 class BookController extends Controller
 {
@@ -17,6 +18,10 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
+        
+        
+      
+        
         $authors = Author::all();
 
 
@@ -58,9 +63,16 @@ class BookController extends Controller
      */
     public function create()
     {
-       $authors = Author::all();
-       $publishers = Publisher::all();
-       return view('book.create', ['authors' => $authors, 'publishers' => $publishers]);
+       
+        if (Auth::user()->role) {
+            $authors = Author::all();
+            $publishers = Publisher::all();
+            return view('book.create', ['authors' => $authors, 'publishers' => $publishers]);
+        }
+        else {
+            abort(403, 'You do not have permission to create new book.');
+        }
+
     }
 
     /**
@@ -71,6 +83,7 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth::user()->role) {
         $book = new Book;
         $book->title = $request->book_title;
         $book->isbn = $request->book_isbn;
@@ -80,6 +93,11 @@ class BookController extends Controller
         $book->publisher_id = $request->publisher_id;
         $book->save();
         return redirect()->route('book.index')->with('success_message', 'The Book was created.');
+        }
+        else {
+            abort(403, 'You do not have permission to create new book.');
+        }
+
     }
 
     /**
